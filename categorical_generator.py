@@ -7,6 +7,7 @@ from argparse import ArgumentParser
 from math import sin, cos
 from pathlib import Path
 from PIL import Image, ImageDraw
+from tqdm import tqdm
 
 import colorsys
 import json
@@ -50,14 +51,20 @@ colors_hsv = [(k/num_colors, 1, 1) for k in range(num_colors)]
 colors_rgb = [colorsys.hsv_to_rgb(*c) for c in colors_hsv]
 colors = [(round(c[0] * 255), round(c[1] * 255), round(c[2] * 255)) for c in colors_rgb]
 
-for i in range(n):
+label_shape = []
+for k in range(group_size):
+    label_shape.append(max_sides-2)
+    label_shape.append(num_colors)
+
+print(f'Generating dataset with {np.prod(label_shape)} classes.')
+
+for i in tqdm(range(n)):
 
     n_groups = random.randint(1, max_groups)
 
     img = Image.new('RGB', (w, h), 'black')
     draw = ImageDraw.Draw(img)
     
-    label_shape = tuple([(max_sides-2) * num_colors] * group_size)
     label = np.zeros(label_shape)
 
     for j in range(n_groups):
@@ -107,14 +114,15 @@ for i in range(n):
                 c1 = centers[k+1]
                 l = ((c0[0,0], c0[1,0]), (c1[0,0], c1[1,0]))
                 c = (255, 255, 255)
-                draw.line(l, c)
+                draw.line(l, c, width=10)
 
         # Save the label
-        index = [0 for _ in range(group_size)]
-        for k in range(group_size):
-            ns = n_sides[k] - 3
-            ci = cis[k]
-            index[k] = ns*num_colors + ci
+        index = [0 for _ in range(group_size*2)]
+        for k in range(0, group_size*2, 2):
+            ns = n_sides[k//2] - 3
+            ci = cis[k//2]
+            index[k] = ns
+            index[k+1] = ci
 
         label[tuple(index)] = 1
     
