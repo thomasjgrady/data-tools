@@ -127,11 +127,11 @@ for i in tqdm(range(n)):
         label[tuple(index)] = 1
     
     # Save the image
-    img_output_path = output_dir.joinpath(Path(f'image_{i:06d}.png'))
+    img_output_path = output_dir.joinpath(Path(f'image_{i:09d}.png'))
     img.save(img_output_path)
 
     # Save the label
-    label_output_path = output_dir.joinpath(Path(f'label_{i:06d}.txt'))
+    label_output_path = output_dir.joinpath(Path(f'label_{i:09d}.txt'))
     label = label.flatten()
     np.savetxt(label_output_path, label)
 
